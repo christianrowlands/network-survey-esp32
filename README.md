@@ -48,8 +48,8 @@ The ESP32-C5 is the recommended chip: it is the only one that receives on
 
 **Web installer.** The easiest way. Open the installer page in Chrome or Edge
 on a computer, plug the board in with a USB data cable, and click Install for
-your board. The page is published from this repository to GitHub Pages
-(`https://christianrowlands.github.io/network-survey-esp32/`) with every release. Its
+your board. The page, <https://install.networksurvey.app/>, is published from
+this repository to GitHub Pages with every release. Its
 source and local test steps are in [`flasher/README.md`](flasher/README.md).
 
 **esptool.** Each [release](https://github.com/christianrowlands/network-survey-esp32/releases)

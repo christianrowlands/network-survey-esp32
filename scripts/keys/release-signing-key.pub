@@ -1,0 +1,4 @@
+# Release Ed25519 firmware signing public key (raw 32 bytes, base64).
+# Its private half is the NS_FIRMWARE_SIGNING_KEY Actions secret and is kept
+# off every repository. The iOS app trusts this key in FirmwareTrust.releaseKeys.
+Ek1bybFsmuhEjknuauGaTa7N2zut111qFfKpziDEBwY=

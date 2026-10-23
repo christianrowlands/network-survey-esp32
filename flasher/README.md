@@ -52,8 +52,9 @@ instead of an Install button.
 
 `.github/workflows/release.yml` stages this folder with the images of each full
 release and deploys it to GitHub Pages, so the page always offers the latest
-firmware. The repository settings it needs are in `docs/releasing.md`. Pages
-serves over HTTPS, which Web Serial requires. The same folder works on any
+firmware. Pages serves it at the custom domain `install.networksurvey.app`, over
+HTTPS, which Web Serial requires. The repository and DNS settings it needs are
+in `docs/releasing.md`. The same folder works on any
 other static HTTPS host.
 
 ## Updating ESP Web Tools

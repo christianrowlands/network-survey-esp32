@@ -37,9 +37,13 @@ Two GitHub Actions workflows live in `.github/workflows/`:
    with `#` are comments). The release workflow verifies its own output
    against this file and stops before publishing if the secret does not match.
    The iOS app must embed the same public key to accept official updates.
-4. **Pages.** In Settings > Pages, set the source to "GitHub Actions". In
-   Settings > Environments > `github-pages`, allow deployments from tags
-   matching `v*` (by default only the default branch may deploy).
+4. **Pages.** In Settings > Pages, set the source to "GitHub Actions" and the
+   custom domain to `install.networksurvey.app`, then tick Enforce HTTPS once
+   the certificate is issued. In Settings > Environments > `github-pages`,
+   allow deployments from tags matching `v*` (by default only the default
+   branch may deploy). In Cloudflare DNS for `networksurvey.app`, the record
+   is `CNAME install -> christianrowlands.github.io`, DNS only (grey cloud):
+   GitHub cannot issue the certificate through the Cloudflare proxy.
 5. **Optional variable.** `NS_FIRMWARE_MIN_VERSION` (Settings > Secrets and
    variables > Actions > Variables) sets `min_version` in the manifest, the
    oldest release the app still installs. Leave it unset for `0.0.0`.
@@ -79,7 +83,8 @@ images of the release that manifest belongs to.
 ## Web installer
 
 For a full release the workflow runs `flasher/stage.sh` on the freshly built
-images and deploys the result to GitHub Pages, replacing the previous
+images and deploys the result to GitHub Pages
+(`https://install.networksurvey.app/`), replacing the previous
 version. See `flasher/README.md` for the page itself.
 
 ## Adding a board
