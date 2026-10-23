@@ -1,0 +1,5 @@
+# DEV / TEST ONLY Ed25519 firmware signing public key (raw 32 bytes, base64).
+# Its private half is kept off the repository and signs local test builds only.
+# Release builds are signed with a different key held as a CI secret; never
+# trust this key for production firmware.
++peeRxpEAL7CjQ0mWuX9HLKnqgTrMg+Ktjkr9fH0kBc=

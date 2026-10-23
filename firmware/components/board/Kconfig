@@ -1,0 +1,153 @@
+menu "Network Survey board"
+
+    choice NS_BOARD
+        prompt "Board"
+        default NS_BOARD_ESP32C5_DEVKITC1 if IDF_TARGET_ESP32C5
+        default NS_BOARD_ESP32C6_DEVKITC1 if IDF_TARGET_ESP32C6
+        default NS_BOARD_ESP32S3_DEVKITC1 if IDF_TARGET_ESP32S3
+        default NS_BOARD_ESP32C3_DEVKITM1 if IDF_TARGET_ESP32C3
+        default NS_BOARD_CUSTOM
+        help
+            Selects the pin map and the board model reported to the app.
+            boards/<board>.defaults sets this for the supported boards.
+            Only the ESP32-C5-DevKitC-1 pin map is verified on hardware; the
+            others come from vendor documentation.
+
+        config NS_BOARD_ESP32C5_DEVKITC1
+            bool "Espressif ESP32-C5-DevKitC-1"
+            depends on IDF_TARGET_ESP32C5
+        config NS_BOARD_XIAO_ESP32C5
+            bool "Seeed Studio XIAO ESP32-C5"
+            depends on IDF_TARGET_ESP32C5
+        config NS_BOARD_ESP32C6_DEVKITC1
+            bool "Espressif ESP32-C6-DevKitC-1"
+            depends on IDF_TARGET_ESP32C6
+        config NS_BOARD_ESP32S3_DEVKITC1
+            bool "Espressif ESP32-S3-DevKitC-1"
+            depends on IDF_TARGET_ESP32S3
+        config NS_BOARD_ESP32C3_DEVKITM1
+            bool "Espressif ESP32-C3-DevKitM-1"
+            depends on IDF_TARGET_ESP32C3
+        config NS_BOARD_CUSTOM
+            bool "Custom board (set the pins below)"
+    endchoice
+
+    config NS_BOARD_MODEL
+        int "Board model value (BoardModel enum in proto/ns_board.proto)"
+        default 2 if NS_BOARD_ESP32C5_DEVKITC1
+        default 3 if NS_BOARD_XIAO_ESP32C5
+        default 4 if NS_BOARD_ESP32C6_DEVKITC1
+        default 5 if NS_BOARD_ESP32S3_DEVKITC1
+        default 6 if NS_BOARD_ESP32C3_DEVKITM1
+        default 1
+
+    config NS_BOARD_MODEL_NAME
+        string "Board model name shown in the app"
+        default "ESP32-C5-DevKitC-1" if NS_BOARD_ESP32C5_DEVKITC1
+        default "XIAO ESP32-C5" if NS_BOARD_XIAO_ESP32C5
+        default "ESP32-C6-DevKitC-1" if NS_BOARD_ESP32C6_DEVKITC1
+        default "ESP32-S3-DevKitC-1" if NS_BOARD_ESP32S3_DEVKITC1
+        default "ESP32-C3-DevKitM-1" if NS_BOARD_ESP32C3_DEVKITM1
+        default "Custom board"
+
+    config NS_BOARD_BUTTON_GPIO
+        int "BOOT button GPIO (active low, -1 for none)"
+        range -1 48
+        default 28 if NS_BOARD_ESP32C5_DEVKITC1 || NS_BOARD_XIAO_ESP32C5
+        default 9 if NS_BOARD_ESP32C6_DEVKITC1 || NS_BOARD_ESP32C3_DEVKITM1
+        default 0 if NS_BOARD_ESP32S3_DEVKITC1
+        default -1
+
+    choice NS_BOARD_LED_TYPE
+        prompt "Status LED type"
+        default NS_BOARD_LED_GPIO if NS_BOARD_XIAO_ESP32C5
+        default NS_BOARD_LED_NONE if NS_BOARD_CUSTOM
+        default NS_BOARD_LED_ADDRESSABLE
+
+        config NS_BOARD_LED_NONE
+            bool "None"
+        config NS_BOARD_LED_GPIO
+            bool "Plain LED on a GPIO"
+        config NS_BOARD_LED_ADDRESSABLE
+            bool "One addressable RGB LED (WS2812 type)"
+    endchoice
+
+    config NS_BOARD_LED_GPIO_NUM
+        int "Status LED GPIO"
+        depends on !NS_BOARD_LED_NONE
+        range 0 48
+        default 27 if NS_BOARD_ESP32C5_DEVKITC1 || NS_BOARD_XIAO_ESP32C5
+        default 8 if NS_BOARD_ESP32C6_DEVKITC1 || NS_BOARD_ESP32C3_DEVKITM1
+        default 48 if NS_BOARD_ESP32S3_DEVKITC1
+        default 0
+        help
+            ESP32-S3-DevKitC-1 v1.0 uses GPIO48, v1.1 uses GPIO38.
+
+    config NS_BOARD_LED_ACTIVE_LOW
+        bool "Plain LED is on when the GPIO is low"
+        depends on NS_BOARD_LED_GPIO
+        default y if NS_BOARD_XIAO_ESP32C5
+        default n
+
+    config NS_BOARD_BATTERY_GPIO
+        int "Battery voltage ADC GPIO (-1 for none)"
+        range -1 48
+        default 6 if NS_BOARD_XIAO_ESP32C5
+        default -1
+        help
+            XIAO ESP32-C5: GPIO6 through a x2 divider, enabled by GPIO26
+            (from the vendor's documentation, not yet verified on hardware).
+
+    config NS_BOARD_BATTERY_ENABLE_GPIO
+        int "GPIO driven high while measuring the battery (-1 for none)"
+        depends on NS_BOARD_BATTERY_GPIO >= 0
+        range -1 48
+        default 26 if NS_BOARD_XIAO_ESP32C5
+        default -1
+
+    config NS_BOARD_BATTERY_DIVIDER
+        int "Battery voltage divider ratio (battery mV = ADC mV x ratio)"
+        depends on NS_BOARD_BATTERY_GPIO >= 0
+        range 1 10
+        default 2
+
+    choice NS_BOARD_GPS
+        prompt "GPS receiver (UART NMEA)"
+        default NS_BOARD_GPS_AUTO if NS_BOARD_XIAO_ESP32C5
+        default NS_BOARD_GPS_NONE
+        help
+            An optional GPS receiver sending NMEA GGA and RMC sentences, read
+            on UART1. With "Detect at boot" the board listens after boot and
+            enables the GPS only if valid NMEA arrives within
+            NS_BOARD_GPS_DETECT_S seconds; otherwise the pin is released.
+
+        config NS_BOARD_GPS_NONE
+            bool "None"
+        config NS_BOARD_GPS_FITTED
+            bool "Fitted"
+        config NS_BOARD_GPS_AUTO
+            bool "Detect at boot"
+    endchoice
+
+    config NS_BOARD_GPS_RX_GPIO
+        int "GPIO that receives the GPS TX line (-1 for none)"
+        depends on !NS_BOARD_GPS_NONE
+        range -1 48
+        default 12 if NS_BOARD_XIAO_ESP32C5
+        default -1
+        help
+            XIAO ESP32-C5: D7 (GPIO12), the header's RX pin (not yet verified
+            with a GPS module on hardware).
+
+    config NS_BOARD_GPS_BAUD
+        int "GPS baud rate"
+        depends on !NS_BOARD_GPS_NONE
+        default 9600
+
+    config NS_BOARD_GPS_DETECT_S
+        int "Seconds to wait for NMEA when detecting"
+        depends on NS_BOARD_GPS_AUTO
+        range 1 120
+        default 10
+
+endmenu

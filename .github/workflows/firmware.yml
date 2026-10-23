@@ -1,0 +1,92 @@
+name: firmware
+
+# Checks and builds every board on branch pushes and pull requests. The release
+# workflow calls it too, then signs and publishes the images it built.
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  # Same protoc as the one the committed nanopb code was generated with.
+  PROTOC_VERSION: "36.2"
+  PROTOC_SHA256: 121f6c7afe1d4d0e3ea6aab9432038599250134cbf4474cb1167d2c7decd4278
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Passive-only check
+        run: scripts/check-passive.sh
+
+      - name: Text check (em dashes, home paths)
+        run: scripts/check-text.sh
+
+      - name: Host tests
+        run: make -C test/host
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install protoc
+        run: |
+          zip="protoc-$PROTOC_VERSION-linux-x86_64.zip"
+          curl -sSfLO "https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOC_VERSION/$zip"
+          echo "$PROTOC_SHA256  $zip" | sha256sum -c -
+          sudo unzip -q -o "$zip" -d /usr/local bin/protoc 'include/*'
+          rm "$zip"
+          protoc --version
+
+      - name: Generated nanopb code is up to date
+        run: scripts/gen-proto.sh --check
+
+  boards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      list: ${{ steps.list.outputs.list }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: list
+        run: echo "list=$(scripts/build-all-targets.sh --list | jq -R . | jq -cs .)" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: boards
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    # Tag checked to exist on Docker Hub; keep it in step with the IDF version
+    # named in firmware/README.md.
+    container: espressif/idf:v6.0.1
+    strategy:
+      fail-fast: false
+      matrix:
+        board: ${{ fromJSON(needs.boards.outputs.list) }}
+    steps:
+      # The container runs as root while the workspace belongs to the runner
+      # user, so git (and IDF version detection) would refuse the checkout.
+      - name: Trust the workspace
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - uses: actions/checkout@v7
+
+      - name: Build ${{ matrix.board }}
+        shell: bash
+        env:
+          BOARD: ${{ matrix.board }}
+        run: |
+          . "$IDF_PATH/export.sh" > /dev/null
+          scripts/build-all-targets.sh "$BOARD"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: firmware-${{ matrix.board }}
+          path: dist/
+          if-no-files-found: error

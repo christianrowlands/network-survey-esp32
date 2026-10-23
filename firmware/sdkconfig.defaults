@@ -1,0 +1,63 @@
+# Settings shared by every board. Per-board settings (target, flash size,
+# partition table, PSRAM, board choice) are in boards/<board>.defaults.
+
+# Partition table: two OTA slots, table at 0x9000 for bootloader headroom.
+# This offset can never change on fielded boards (the bootloader and table are
+# not OTA-updated).
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_OFFSET=0x9000
+CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
+
+# Wi-Fi and BLE share one radio.
+CONFIG_ESP_COEX_SW_COEXIST_ENABLE=y
+
+# NimBLE: peripheral plus observer for passive BLE sniffing. Two connections
+# so a second phone can bond during a pairing window; otherwise one.
+CONFIG_BT_ENABLED=y
+CONFIG_BT_NIMBLE_ENABLED=y
+CONFIG_BT_NIMBLE_ROLE_PERIPHERAL=y
+CONFIG_BT_NIMBLE_ROLE_BROADCASTER=y
+CONFIG_BT_NIMBLE_ROLE_OBSERVER=y
+CONFIG_BT_NIMBLE_ROLE_CENTRAL=n
+CONFIG_BT_NIMBLE_MAX_CONNECTIONS=2
+CONFIG_BT_NIMBLE_LOG_LEVEL_WARNING=y
+
+# LE Secure Connections only, bonds persisted in NVS (the default is RAM only).
+# One bond by default; raise MAX_BONDS for more phones and MAX_CCCDS with it
+# (about 8 per bond).
+CONFIG_BT_NIMBLE_SECURITY_ENABLE=y
+CONFIG_BT_NIMBLE_SM_SC=y
+CONFIG_BT_NIMBLE_SM_LEGACY=n
+CONFIG_BT_NIMBLE_NVS_PERSIST=y
+CONFIG_BT_NIMBLE_MAX_BONDS=1
+CONFIG_BT_NIMBLE_MAX_CCCDS=8
+
+# Link: large MTU, 2M PHY, more notification buffers.
+CONFIG_BT_NIMBLE_ATT_PREFERRED_MTU=517
+CONFIG_BT_NIMBLE_50_FEATURE_SUPPORT=y
+CONFIG_BT_NIMBLE_LL_CFG_FEAT_LE_2M_PHY=y
+CONFIG_BT_NIMBLE_MSYS_1_BLOCK_COUNT=40
+# Off: the host-side "congestion check" drops repeated legacy reports from a
+# device (the BLE sniffer wants every one), and on ESP32-C5/C6 IDF v6.0.1
+# never initialises its lock, so ble_gap_disc_cancel crashes with it on.
+CONFIG_BT_NIMBLE_HOST_QUEUE_CONG_CHECK=n
+
+# Extended advertising API, so extended scanning works and the BLE sniffer
+# also receives BLE 5 extended advertisements. The board itself still sends
+# legacy PDUs (phones see the same advertisement). One advertising set, no
+# periodic advertising or sync.
+CONFIG_BT_NIMBLE_EXT_ADV=y
+CONFIG_BT_NIMBLE_MAX_EXT_ADV_INSTANCES=1
+CONFIG_BT_NIMBLE_EXT_ADV_MAX_SIZE=31
+CONFIG_BT_NIMBLE_ENABLE_PERIODIC_ADV=n
+CONFIG_BT_NIMBLE_EXT_SCAN=y
+CONFIG_BT_NIMBLE_ENABLE_PERIODIC_SYNC=n
+
+# Standard services next to the NS Board Service.
+CONFIG_BT_NIMBLE_GAP_SERVICE=y
+CONFIG_BT_NIMBLE_DIS_SERVICE=y
+CONFIG_BT_NIMBLE_SVC_DIS_MANUFACTURER_NAME=y
+CONFIG_BT_NIMBLE_SVC_DIS_FIRMWARE_REVISION=y
+CONFIG_BT_NIMBLE_SVC_DIS_HARDWARE_REVISION=y
+
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=6144

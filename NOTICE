@@ -1,0 +1,40 @@
+Network Survey ESP32 Firmware
+Copyright 2026 Caskfive LLC
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes nanopb (https://github.com/nanopb/nanopb), licensed under
+the zlib license (see firmware/components/ns_proto/nanopb/LICENSE.txt).
+
+Binary distributions
+--------------------
+
+Firmware images built from this repository (release downloads and the web
+flasher) also contain the following third-party software:
+
+- ESP-IDF (https://github.com/espressif/esp-idf), Copyright Espressif Systems
+  (Shanghai) Co., Ltd., Apache License 2.0.
+- Espressif's Wi-Fi, Bluetooth controller and PHY libraries, distributed with
+  ESP-IDF in binary form, Copyright Espressif Systems (Shanghai) Co., Ltd.,
+  Apache License 2.0.
+- Apache Mynewt NimBLE, as included in ESP-IDF, Apache License 2.0. Its NOTICE
+  reads:
+
+    Apache Mynewt NimBLE
+    Copyright 2015-2022 The Apache Software Foundation
+    Modifications Copyright 2017-2022 Espressif Systems (Shanghai) CO., LTD.
+
+    This product includes software developed at
+    The Apache Software Foundation (http://www.apache.org/).
+
+    Portions of this software were developed at
+    Runtime Inc, copyright 2015.
+
+- FreeRTOS Kernel, as included in ESP-IDF, Copyright Amazon.com, Inc. or its
+  affiliates, MIT License.
+- Mbed TLS, as included in ESP-IDF, Copyright The Mbed TLS Contributors,
+  used under the Apache License 2.0 (it is dual licensed Apache-2.0 or
+  GPL-2.0-or-later).
+- espressif/led_strip (https://components.espressif.com/components/espressif/led_strip),
+  Copyright Espressif Systems (Shanghai) Co., Ltd., Apache License 2.0.
+- nanopb, zlib license (see above).

@@ -1,0 +1,11 @@
+menu "Network Survey sniffer"
+
+    config NS_SNIFFER_DEBUG_AUTOSTART
+        bool "Start the sniffer at boot with the debug sink"
+        default n
+        help
+            Bring-up aid: hops the default schedule from boot and logs per-dwell
+            counts instead of sending records to the phone. Leave off in
+            release builds.
+
+endmenu

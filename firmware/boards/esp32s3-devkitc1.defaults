@@ -1,0 +1,8 @@
+# Espressif ESP32-S3-DevKitC-1 (8 MB flash or more). PSRAM differs between
+# variants (none, quad or octal), so it is left off here.
+CONFIG_IDF_TARGET="esp32s3"
+CONFIG_NS_BOARD_ESP32S3_DEVKITC1=y
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions/partitions-8mb.csv"
+# Dual core: keep the BLE host off the core that runs the Wi-Fi task.
+CONFIG_BT_NIMBLE_PINNED_TO_CORE_1=y

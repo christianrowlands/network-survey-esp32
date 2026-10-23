@@ -1,0 +1,148 @@
+name: release
+
+# Pushing a version tag (v1.2.3, or v1.2.3-beta.1 for a pre-release) builds
+# every board, signs the OTA images and the release manifest, publishes them
+# as a GitHub Release and, for full releases, deploys the web installer to
+# GitHub Pages. Setup: docs/releasing.md.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  # Public half of the signing key. The workflow refuses to publish anything
+  # the secret did not sign for this key.
+  RELEASE_PUBLIC_KEY: scripts/keys/release-signing-key.pub
+
+jobs:
+  firmware:
+    uses: ./.github/workflows/firmware.yml
+
+  release:
+    needs: firmware
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    outputs:
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check the tag against PROJECT_VER
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version=$(sed -n 's/^set(PROJECT_VER "\(.*\)")/\1/p' firmware/CMakeLists.txt)
+          if [ "$TAG" != "v$version" ]; then
+            echo "::error::tag $TAG does not match PROJECT_VER $version in firmware/CMakeLists.txt"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          case "$version" in
+            *-*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;;
+            *) echo "prerelease=false" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Check the signing setup
+        env:
+          NS_SIGNING_KEY: ${{ secrets.NS_FIRMWARE_SIGNING_KEY }}
+        run: |
+          if [ -z "$NS_SIGNING_KEY" ]; then
+            echo "::error::the NS_FIRMWARE_SIGNING_KEY secret is not set (docs/releasing.md)"
+            exit 1
+          fi
+          if [ ! -f "$RELEASE_PUBLIC_KEY" ]; then
+            echo "::error::$RELEASE_PUBLIC_KEY is missing (docs/releasing.md)"
+            exit 1
+          fi
+
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: firmware-*
+          path: dist/
+          merge-multiple: true
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install the signing tool dependency
+        run: python -m pip install --disable-pip-version-check cryptography==46.0.7
+
+      - name: Sign the images and the manifest
+        env:
+          NS_SIGNING_KEY: ${{ secrets.NS_FIRMWARE_SIGNING_KEY }}
+          # Optional repository variable; empty means 0.0.0.
+          NS_MIN_VERSION: ${{ vars.NS_FIRMWARE_MIN_VERSION }}
+          NS_RELEASE_BASE_URL: ${{ github.server_url }}/${{ github.repository }}/releases/download/${{ github.ref_name }}/
+        run: scripts/sign-release.sh --public-key "$RELEASE_PUBLIC_KEY"
+
+      - name: Check that every board was signed
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          missing=0
+          for board in $(scripts/build-all-targets.sh --list); do
+            if [ ! -f "dist/release/network-survey-board-$board-$VERSION.bin" ]; then
+              echo "::error::no signed image for $board"
+              missing=1
+            fi
+          done
+          exit $missing
+
+      - name: Add the full flash images
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mkdir -p dist/flash
+          for board in $(scripts/build-all-targets.sh --list); do
+            cp "dist/$board/network-survey-board-$board.bin" \
+              "dist/flash/network-survey-board-$board-$VERSION-full-flash.bin"
+          done
+
+      - name: Publish the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+        run: |
+          flags=()
+          [ "$PRERELEASE" = "true" ] && flags+=(--prerelease)
+          gh release create "$TAG" --verify-tag --title "Firmware $TAG" --generate-notes "${flags[@]}" \
+            dist/release/* dist/flash/*
+
+      - name: Stage the web installer
+        if: steps.version.outputs.prerelease == 'false'
+        run: flasher/stage.sh dist/flasher
+
+      - uses: actions/upload-pages-artifact@v5
+        if: steps.version.outputs.prerelease == 'false'
+        with:
+          path: dist/flasher
+          include-hidden-files: true
+
+  pages:
+    needs: release
+    if: needs.release.outputs.prerelease == 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v5

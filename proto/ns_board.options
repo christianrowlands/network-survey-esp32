@@ -1,0 +1,47 @@
+# nanopb options for ns_board.proto: fixed maximum sizes so the firmware
+# never allocates. These limits are part of the protocol (docs/protocol.md):
+# senders must stay within them.
+
+# MAC addresses.
+ns.board.v1.BoardInfo.bt_address                  max_size:6 fixed_length:true
+ns.board.v1.ApObservation.bssid                   max_size:6 fixed_length:true
+ns.board.v1.ClientObservation.client_mac          max_size:6 fixed_length:true
+ns.board.v1.ClientObservation.associated_bssid    max_size:6
+ns.board.v1.ProbeObservation.client_mac           max_size:6 fixed_length:true
+ns.board.v1.ProbeObservation.destination_address  max_size:6
+ns.board.v1.ProbeObservation.bssid                max_size:6
+ns.board.v1.BleObservation.address                max_size:6 fixed_length:true
+
+# SSIDs (802.11 limit).
+ns.board.v1.ApObservation.ssid                    max_size:32
+ns.board.v1.ProbeObservation.ssid                 max_size:32
+
+# Rates and suites. Longer lists are truncated by the board.
+ns.board.v1.ApObservation.supported_rates          max_size:16
+ns.board.v1.ApObservation.extended_supported_rates max_size:32
+ns.board.v1.ApObservation.pairwise_ciphers         max_count:8
+ns.board.v1.ApObservation.akm_suites               max_count:8
+
+# BLE: legacy advertising payload limit.
+ns.board.v1.BleObservation.adv_data               max_size:31
+ns.board.v1.BleObservation.local_name             max_size:31
+
+# Strings (sizes include the NUL terminator).
+ns.board.v1.BoardInfo.firmware_version            max_size:32
+ns.board.v1.BoardInfo.short_id                    max_size:8
+ns.board.v1.BoardInfo.model_name                  max_size:32
+ns.board.v1.BoardInfo.bands                       max_count:4
+ns.board.v1.Hello.app_version                     max_size:32
+ns.board.v1.HelloResult.firmware_version          max_size:32
+ns.board.v1.ControlResponse.message               max_size:64
+
+# Control payloads.
+ns.board.v1.Configure.channels                    max_count:64
+ns.board.v1.ConfigureResult.channels              max_count:64
+ns.board.v1.OtaBegin.sha256                       max_size:32 fixed_length:true
+
+# Records: a batch never exceeds one notification, so 12 is a ceiling, not a target.
+ns.board.v1.RecordBatch.records                   max_count:12
+
+# Raw frames: the effective snaplen is also limited by the negotiated MTU.
+ns.board.v1.RawFrame.data                         max_size:512

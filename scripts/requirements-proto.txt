@@ -1,0 +1,4 @@
+# Pinned nanopb generator for scripts/gen-proto.sh. Keep nanopb in step with
+# the vendored runtime in firmware/components/ns_proto/nanopb/.
+nanopb==0.4.9.1
+protobuf==7.36.2

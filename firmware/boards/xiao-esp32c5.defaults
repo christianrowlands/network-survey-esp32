@@ -1,0 +1,13 @@
+# Seeed Studio XIAO ESP32-C5 (8 MB flash, 8 MB PSRAM, battery input).
+CONFIG_IDF_TARGET="esp32c5"
+CONFIG_NS_BOARD_XIAO_ESP32C5=y
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions/partitions-8mb.csv"
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_IGNORE_NOTFOUND=y
+CONFIG_SPIRAM_USE_MALLOC=y
+# Skip the boot-time PSRAM test (about 2 s).
+CONFIG_SPIRAM_MEMTEST=n
+# Console on the USB port: UART0's pins (GPIO11/12, D6/D7) are the header's
+# UART, where a GPS module connects.
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y

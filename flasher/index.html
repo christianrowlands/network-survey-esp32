@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Network Survey Board Installer</title>
+  <meta name="description" content="Install the Network Survey board firmware on an ESP32 board from your browser.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="img/ns-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="img/ns-icon-256.png">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="https://unpkg.com/esp-web-tools@10.4.0/dist/web/install-button.js"
+    integrity="sha256-RhKOAwrfRs44dqwoyiED7oQsxQUm5JQJ6EMOO0x5X3k=" crossorigin="anonymous"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <picture>
+      <source srcset="img/ns-lockup-dark.svg" media="(prefers-color-scheme: dark)">
+      <img class="lockup" src="img/ns-lockup-light.svg" alt="Network Survey" width="280" height="31">
+    </picture>
+  </header>
+
+  <main id="main">
+    <h1>Board firmware installer</h1>
+    <p class="lead">Install the Network Survey board firmware on an ESP32 board straight from your
+      browser. You only do this once: after this first install, the Network Survey iOS app updates
+      the board over Bluetooth.</p>
+
+    <section class="notice" aria-labelledby="notice-title">
+      <h2 id="notice-title">Before you start</h2>
+      <ul>
+        <li><strong>Receive-only survey firmware.</strong> The board listens to Wi-Fi and Bluetooth
+          and reports what it hears to the app. It never transmits Wi-Fi frames, never joins a
+          network, and never sends active scans or deauthentication frames.</li>
+        <li><strong>Only survey where you are allowed to.</strong> Rules on capturing wireless
+          traffic differ by country and by site. You are responsible for following them.</li>
+        <li><strong>Installing replaces everything on the board</strong>, including any previous
+          firmware and Bluetooth pairings. Pair it with the app again afterward.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="need-title">
+      <h2 id="need-title">What you need</h2>
+      <ul>
+        <li>Google Chrome or Microsoft Edge on a desktop or laptop computer (Windows, macOS, Linux
+          or ChromeOS). Safari, Firefox and phone browsers cannot install firmware.</li>
+        <li>A USB cable that carries data. Many cables that come with chargers only carry power.</li>
+        <li>One of the boards below.</li>
+      </ul>
+      <p id="unsupported" class="alert" hidden>This browser cannot talk to USB serial devices. Open
+        this page in Chrome or Edge on a computer.</p>
+    </section>
+
+    <section aria-labelledby="step1-title">
+      <h2 id="step1-title"><span class="step" aria-hidden="true">1</span> Connect the board</h2>
+      <p>Plug the board into your computer with the USB cable. If the board has two USB ports,
+        either one works; if the board is not found, try the other one.</p>
+    </section>
+
+    <section aria-labelledby="step2-title">
+      <h2 id="step2-title"><span class="step" aria-hidden="true">2</span> Install the firmware</h2>
+      <p>Press <strong>Install</strong> on your board, pick its serial port in the browser's list,
+        then choose <strong>Install Network Survey Board</strong> and confirm. It takes about a
+        minute. Keep the board plugged in until it says the installation is complete.</p>
+      <p id="fw-version" class="muted" aria-live="polite"></p>
+
+      <ul class="boards">
+        <li class="board" data-board="xiao-esp32c5">
+          <h3>Seeed Studio XIAO ESP32-C5</h3>
+          <p class="specs">ESP32-C5, Wi-Fi 2.4 and 5 GHz, Bluetooth LE</p>
+          <p class="untested">Not yet tested on hardware.</p>
+          <p>Small, runs from a LiPo battery, and takes an optional GPS module.</p>
+          <esp-web-install-button manifest="firmware/xiao-esp32c5/manifest.json">
+            <button slot="activate" class="install">Install<span class="sr"> on XIAO ESP32-C5</span></button>
+            <span slot="unsupported" class="missing">Needs Chrome or Edge on a computer.</span>
+            <span slot="not-allowed" class="missing">Open this page over HTTPS to install.</span>
+          </esp-web-install-button>
+        </li>
+        <li class="board" data-board="esp32c5-devkitc1">
+          <h3>Espressif ESP32-C5-DevKitC-1</h3>
+          <p class="specs">ESP32-C5, Wi-Fi 2.4 and 5 GHz, Bluetooth LE</p>
+          <p>Needs 8 MB of flash (N8R4 and N8R8 modules).</p>
+          <esp-web-install-button manifest="firmware/esp32c5-devkitc1/manifest.json">
+            <button slot="activate" class="install">Install<span class="sr"> on ESP32-C5-DevKitC-1</span></button>
+            <span slot="unsupported" class="missing">Needs Chrome or Edge on a computer.</span>
+            <span slot="not-allowed" class="missing">Open this page over HTTPS to install.</span>
+          </esp-web-install-button>
+        </li>
+        <li class="board" data-board="esp32c6-devkitc1">
+          <h3>Espressif ESP32-C6-DevKitC-1</h3>
+          <p class="specs">ESP32-C6, Wi-Fi 2.4 GHz only, Bluetooth LE</p>
+          <p class="untested">Not yet tested on hardware.</p>
+          <p>Needs 8 MB of flash.</p>
+          <esp-web-install-button manifest="firmware/esp32c6-devkitc1/manifest.json">
+            <button slot="activate" class="install">Install<span class="sr"> on ESP32-C6-DevKitC-1</span></button>
+            <span slot="unsupported" class="missing">Needs Chrome or Edge on a computer.</span>
+            <span slot="not-allowed" class="missing">Open this page over HTTPS to install.</span>
+          </esp-web-install-button>
+        </li>
+        <li class="board" data-board="esp32s3-devkitc1">
+          <h3>Espressif ESP32-S3-DevKitC-1</h3>
+          <p class="specs">ESP32-S3, Wi-Fi 2.4 GHz only, Bluetooth LE</p>
+          <p class="untested">Not yet tested on hardware.</p>
+          <p>Needs 8 MB of flash or more.</p>
+          <esp-web-install-button manifest="firmware/esp32s3-devkitc1/manifest.json">
+            <button slot="activate" class="install">Install<span class="sr"> on ESP32-S3-DevKitC-1</span></button>
+            <span slot="unsupported" class="missing">Needs Chrome or Edge on a computer.</span>
+            <span slot="not-allowed" class="missing">Open this page over HTTPS to install.</span>
+          </esp-web-install-button>
+        </li>
+        <li class="board" data-board="esp32c3-devkitm1">
+          <h3>Espressif ESP32-C3-DevKitM-1</h3>
+          <p class="specs">ESP32-C3, Wi-Fi 2.4 GHz only, Bluetooth LE</p>
+          <p class="untested">Not yet tested on hardware.</p>
+          <p>Needs 4 MB of flash or more.</p>
+          <esp-web-install-button manifest="firmware/esp32c3-devkitm1/manifest.json">
+            <button slot="activate" class="install">Install<span class="sr"> on ESP32-C3-DevKitM-1</span></button>
+            <span slot="unsupported" class="missing">Needs Chrome or Edge on a computer.</span>
+            <span slot="not-allowed" class="missing">Open this page over HTTPS to install.</span>
+          </esp-web-install-button>
+        </li>
+      </ul>
+
+      <details>
+        <summary>The board is not found, or the install fails to connect</summary>
+        <ol>
+          <li>Try a different USB cable or port. Charge-only cables are the most common cause.</li>
+          <li>Put the board in download mode: hold the <strong>BOOT</strong> button, press and
+            release <strong>RESET</strong> (labeled RST or EN on some boards), then release BOOT.
+            Press Install again. On the XIAO, hold BOOT while you plug in the cable instead.</li>
+          <li>After an install in download mode, press <strong>RESET</strong> once so the board
+            starts the new firmware.</li>
+          <li>On Windows, boards with a USB to UART chip may need its driver (Silicon Labs CP210x
+            or WCH CH34x).</li>
+        </ol>
+      </details>
+    </section>
+
+    <section aria-labelledby="step3-title">
+      <h2 id="step3-title"><span class="step" aria-hidden="true">3</span> Note the board's name</h2>
+      <p>Every board has a short name such as <code>NS-1A2B</code>, made from its Bluetooth
+        address. The app shows this name when you pair, so you can tell your boards apart. Close
+        the installer window first, then:</p>
+      <div class="name-row">
+        <button type="button" id="read-name" class="secondary">Show board name</button>
+        <output id="board-name" class="board-name" aria-live="polite"></output>
+      </div>
+      <p id="name-status" class="muted" aria-live="polite"></p>
+      <p class="muted">You can also open <strong>Logs &amp; Console</strong> in the installer and
+        look for a line that says <code>name NS-</code>.</p>
+    </section>
+
+    <section aria-labelledby="step4-title">
+      <h2 id="step4-title"><span class="step" aria-hidden="true">4</span> Pair it with the app</h2>
+      <p>Open the Network Survey app on your iPhone, tap <strong>Boards</strong> at the top of the
+        Survey screen, and pick your board's name under <strong>Nearby</strong>. A freshly
+        installed board is ready to pair straight away. From now on, the app offers
+        firmware updates and installs them over Bluetooth, so you will not need this page again
+        for that board.</p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Network Survey board firmware is open source under the Apache License 2.0. This page has
+      no analytics, cookies or trackers. The firmware files come from this site; the installer
+      script (ESP Web Tools) loads from unpkg.com.</p>
+  </footer>
+</body>
+</html>
