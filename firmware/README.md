@@ -1,4 +1,4 @@
-# Network Survey board firmware
+# NS Scout firmware
 
 ESP-IDF firmware that turns an ESP32 board into a passive Wi-Fi and BLE
 survey sensor for the Network Survey app. The board talks to the phone over
@@ -39,7 +39,7 @@ Output goes to `dist/<board id>/`:
 
 - `network-survey-board-<board id>.bin`: merged image, flash at offset 0.
 - `network-survey-board-<board id>-app.bin`: app image for OTA updates.
-- `manifest.json`: manifest for the esp-web-tools web flasher.
+- `manifest.json`: manifest for the web installer (ESP Web Tools format).
 
 To work on one board with `idf.py` directly (from `firmware/`):
 
@@ -90,7 +90,7 @@ download mode instead of the firmware, so press it just after power-up.
 
 A GPS receiver that sends NMEA 0183 (GGA and RMC, any talker) at 9600 baud can
 be wired to one GPIO: the receiver's TX to the board's GPS RX pin, plus power
-and ground. The board only listens. Set it in the "Network Survey board"
+and ground. The board only listens. Set it in the "NS Scout"
 Kconfig menu:
 
 | Option | Meaning |

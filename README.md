@@ -3,13 +3,13 @@
   <img src="flasher/img/ns-lockup-light.svg" alt="Network Survey" width="280">
 </picture>
 
-# Network Survey board firmware
+# NS Scout firmware
 
-Firmware that turns an inexpensive ESP32 board into a passive Wi-Fi and
-Bluetooth LE survey sensor for the Network Survey iPhone app.
+Firmware that turns an inexpensive ESP32 board into an **NS Scout**: a passive
+Wi-Fi and Bluetooth LE survey sensor for the Network Survey iPhone app.
 
 iOS has no API for scanning Wi-Fi, and it hides the real addresses of
-Bluetooth devices. So the board does the listening: it hears 802.11 frames and
+Bluetooth devices. So the Scout does the listening: it hears 802.11 frames and
 BLE advertisements, summarizes them, and sends the summaries to the phone over
 Bluetooth LE. The phone adds location and does everything else: storage, CSV
 and pcapng files, MQTT and gRPC streaming, and upload to NS Analytics.
@@ -19,16 +19,16 @@ The iPhone app lives in its own repository:
 
 ## Receive only
 
-The board never transmits 802.11 frames. Wi-Fi capture uses promiscuous
+The Scout never transmits 802.11 frames. Wi-Fi capture uses promiscuous
 receive on one channel at a time, set by the firmware: no probe requests, no
 active scans, no association, no deauthentication or any other injected frame.
-BLE scanning is passive too (no scan requests). The board transmits only its
+BLE scanning is passive too (no scan requests). The Scout transmits only its
 own Bluetooth LE advertising and the link to your phone.
 
 `scripts/check-passive.sh` enforces this in CI by failing the build if 802.11
 transmit, active scan or deauthentication code appears in the firmware.
 
-Use the board only where you are allowed to survey.
+Use the Scout only where you are allowed to survey.
 
 ## Supported boards
 
@@ -47,8 +47,9 @@ The ESP32-C5 is the recommended chip: it is the only one that receives on
 ## Getting the firmware onto a board
 
 **Web installer.** The easiest way. Open the installer page in Chrome or Edge
-on a computer, plug the board in with a USB data cable, and click Install for
-your board. The page, <https://install.networksurvey.app/>, is published from
+on a computer, plug the board in with a USB data cable, and click Connect board.
+The page identifies the chip, asks which board it is, installs, and shows the
+Scout's name. The page, <https://install.networksurvey.app/>, is published from
 this repository to GitHub Pages with every release. Its
 source and local test steps are in [`flasher/README.md`](flasher/README.md).
 
@@ -65,14 +66,15 @@ flash also deletes the board's Bluetooth pairings.
 
 **Build it yourself.** See below.
 
-After the first install, the iPhone app updates the board over Bluetooth.
+After the first install, the iPhone app updates the Scout over Bluetooth.
 
 ## Pairing with the app
 
-A new board has no pairings, so it is ready to pair. In the app, open
-Survey > Boards and tap the board under Nearby (it shows as `NS-XXXX`). When
-iOS asks, tap Pair. To pair a board that already has a phone, hold its BOOT
-button for about 3 seconds until the LED blinks cyan, then pair. LED colors,
+A new Scout has no pairings, so it is ready to pair: its LED blinks fast (cyan,
+or yellow on the XIAO). In the app, open Survey > Scouts, find the Scout under
+Nearby (it shows as `NS-XXXX`) and tap Connect. When iOS asks, tap Pair. To pair
+a Scout that already has a phone, hold its BOOT button (B on the XIAO) for about
+3 seconds until the LED blinks fast, then pair. LED colors,
 button actions and the pairing rules are in
 [`firmware/README.md`](firmware/README.md#led-and-button).
 
@@ -106,24 +108,24 @@ scripts/check-text.sh       # no em dashes or home-directory paths in tracked fi
 CI runs all of these and builds every board on each push
 ([`.github/workflows/firmware.yml`](.github/workflows/firmware.yml)).
 
-## Board protocol
+## Scout protocol
 
-The board and the app talk over one custom GATT service. Messages are Protocol
+The Scout and the app talk over one custom GATT service. Messages are Protocol
 Buffers defined in [`proto/ns_board.proto`](proto/ns_board.proto), the source of
 truth. [`docs/protocol.md`](docs/protocol.md) describes advertising, pairing and
 security, framing, control commands, records, raw frames, firmware updates and
-versioning. Anyone can build a compatible board or app from it.
+versioning. Anyone can build a compatible sensor or app from it.
 
 ## Firmware updates and signing
 
 The app installs updates over Bluetooth into the second of two app slots. The
-board checks the image's SHA-256 before it switches, and rolls back to the old
+Scout checks the image's SHA-256 before it switches, and rolls back to the old
 image if the new one does not start up and confirm itself.
 
 Official releases are signed with an Ed25519 key that is held only as a CI
 secret. The app verifies the signed release manifest and each image against
-the public keys built into it before it sends anything to the board. The board
-itself does not check signatures, so a phone that is paired with the board can
+the public keys built into it before it sends anything to the Scout. The Scout
+itself does not check signatures, so a phone that is paired with the Scout can
 install any firmware; secure boot on the chip is possible future work. The
 details are in:
 
@@ -143,7 +145,7 @@ only. It never signs release firmware.
 |---|---|
 | `firmware/` | ESP-IDF project: startup, board configs, survey pipeline components |
 | `proto/` | `ns_board.proto` and nanopb options |
-| `flasher/` | Web installer page |
+| `flasher/` | Web installer page (install.networksurvey.app) |
 | `scripts/` | Build, codegen, signing and check scripts |
 | `test/` | Host tests and wire fixtures |
 | `docs/` | Protocol, hardware, release manifest and release process |

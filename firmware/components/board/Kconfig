@@ -1,4 +1,4 @@
-menu "Network Survey board"
+menu "NS Scout"
 
     choice NS_BOARD
         prompt "Board"

@@ -1,4 +1,4 @@
-# Network Survey board firmware. Build one board with:
+# NS Scout firmware. Build one board with:
 #   idf.py -B build/<board> -DSDKCONFIG=build/<board>/sdkconfig \
 #          -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;boards/<board>.defaults" build
 # or build every board with scripts/build-all-targets.sh.

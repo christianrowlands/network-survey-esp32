@@ -3,170 +3,236 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Network Survey Board Installer</title>
-  <meta name="description" content="Install the Network Survey board firmware on an ESP32 board from your browser.">
+  <title>NS Scout Installer</title>
+  <meta name="description" content="Install the NS Scout software on an ESP32 board from your browser, then pair it with Network Survey on iPhone.">
   <meta name="color-scheme" content="light dark">
   <meta name="referrer" content="no-referrer">
   <link rel="icon" href="img/ns-icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="img/ns-icon-256.png">
+  <link rel="preload" href="fonts/ScoutDisplay.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
-  <script type="module" src="https://unpkg.com/esp-web-tools@10.4.0/dist/web/install-button.js"
-    integrity="sha256-RhKOAwrfRs44dqwoyiED7oQsxQUm5JQJ6EMOO0x5X3k=" crossorigin="anonymous"></script>
-  <script type="module" src="app.js"></script>
+  <link rel="stylesheet" href="wizard.css">
+  <script type="importmap">
+  {
+    "imports": { "esptool-js": "https://unpkg.com/esptool-js@0.6.1/bundle.js" },
+    "integrity": {
+      "https://unpkg.com/esptool-js@0.6.1/bundle.js": "sha384-txZcG2rOUffI3x8ZiloVs+s9+8Bt7abGtvmASlIwE5EUJ8msnKoHjgA/HzW433J7"
+    }
+  }
+  </script>
+  <script type="module" src="js/app.js"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="top">
-    <picture>
-      <source srcset="img/ns-lockup-dark.svg" media="(prefers-color-scheme: dark)">
-      <img class="lockup" src="img/ns-lockup-light.svg" alt="Network Survey" width="280" height="31">
-    </picture>
+    <a class="brand" href="https://networksurvey.app/scout">
+      <picture>
+        <source srcset="img/ns-lockup-dark.svg" media="(prefers-color-scheme: dark)">
+        <img class="lockup" src="img/ns-lockup-light.svg" alt="Network Survey" width="224" height="25">
+      </picture>
+    </a>
+    <p class="product">NS Scout installer <span id="fw-version" class="version" hidden></span></p>
   </header>
 
   <main id="main">
-    <h1>Board firmware installer</h1>
-    <p class="lead">Install the Network Survey board firmware on an ESP32 board straight from your
-      browser. You only do this once: after this first install, the Network Survey iOS app updates
-      the board over Bluetooth.</p>
-
-    <section class="notice" aria-labelledby="notice-title">
-      <h2 id="notice-title">Before you start</h2>
-      <ul>
-        <li><strong>Receive-only survey firmware.</strong> The board listens to Wi-Fi and Bluetooth
-          and reports what it hears to the app. It never transmits Wi-Fi frames, never joins a
-          network, and never sends active scans or deauthentication frames.</li>
-        <li><strong>Only survey where you are allowed to.</strong> Rules on capturing wireless
-          traffic differ by country and by site. You are responsible for following them.</li>
-        <li><strong>Installing replaces everything on the board</strong>, including any previous
-          firmware and Bluetooth pairings. Pair it with the app again afterward.</li>
-      </ul>
+    <section class="hero" aria-labelledby="hero-title">
+      <h1 id="hero-title">Set up your NS Scout</h1>
+      <p class="lead">Install the Scout software once from this computer. After that, Network Survey
+        on your iPhone keeps it up to date over Bluetooth.</p>
     </section>
 
-    <section aria-labelledby="need-title">
-      <h2 id="need-title">What you need</h2>
-      <ul>
-        <li>Google Chrome or Microsoft Edge on a desktop or laptop computer (Windows, macOS, Linux
-          or ChromeOS). Safari, Firefox and phone browsers cannot install firmware.</li>
-        <li>A USB cable that carries data. Many cables that come with chargers only carry power.</li>
-        <li>One of the boards below.</li>
-      </ul>
-      <p id="unsupported" class="alert" hidden>This browser cannot talk to USB serial devices. Open
-        this page in Chrome or Edge on a computer.</p>
-    </section>
+    <ol class="rail" id="rail" aria-label="Setup steps">
+      <li data-step="connect"><span class="dot" aria-hidden="true">1</span><span class="rail-label">Connect</span></li>
+      <li data-step="choose"><span class="dot" aria-hidden="true">2</span><span class="rail-label">Choose</span></li>
+      <li data-step="install"><span class="dot" aria-hidden="true">3</span><span class="rail-label">Install</span></li>
+      <li data-step="pair"><span class="dot" aria-hidden="true">4</span><span class="rail-label">Pair</span></li>
+    </ol>
 
-    <section aria-labelledby="step1-title">
-      <h2 id="step1-title"><span class="step" aria-hidden="true">1</span> Connect the board</h2>
-      <p>Plug the board into your computer with the USB cable. If the board has two USB ports,
-        either one works; if the board is not found, try the other one.</p>
-    </section>
+    <div class="card" id="wizard">
+      <p id="announce" class="sr" aria-live="polite"></p>
 
-    <section aria-labelledby="step2-title">
-      <h2 id="step2-title"><span class="step" aria-hidden="true">2</span> Install the firmware</h2>
-      <p>Press <strong>Install</strong> on your board, pick its serial port in the browser's list,
-        then choose <strong>Install Network Survey Board</strong> and confirm. It takes about a
-        minute. Keep the board plugged in until it says the installation is complete.</p>
-      <p id="fw-version" class="muted" aria-live="polite"></p>
+      <section class="panel" id="panel-gate" aria-labelledby="gate-title" hidden>
+        <div class="gate-icon" aria-hidden="true"></div>
+        <h2 id="gate-title" tabindex="-1"></h2>
+        <p id="gate-text"></p>
+        <div class="link-box">
+          <code id="page-url"></code>
+          <div class="actions">
+            <button type="button" class="btn primary" id="copy-link">Copy link</button>
+            <a class="btn secondary" id="mail-link">Email me the link</a>
+          </div>
+        </div>
+      </section>
 
-      <ul class="boards">
-        <li class="board" data-board="xiao-esp32c5">
-          <h3>Seeed Studio XIAO ESP32-C5</h3>
-          <p class="specs">ESP32-C5, Wi-Fi 2.4 and 5 GHz, Bluetooth LE</p>
-          <p class="untested">Not yet tested on hardware.</p>
-          <p>Small, runs from a LiPo battery, and takes an optional GPS module.</p>
-          <esp-web-install-button manifest="firmware/xiao-esp32c5/manifest.json">
-            <button slot="activate" class="install">Install<span class="sr"> on XIAO ESP32-C5</span></button>
-            <span slot="unsupported" class="missing">Needs Chrome or Edge on a computer.</span>
-            <span slot="not-allowed" class="missing">Open this page over HTTPS to install.</span>
-          </esp-web-install-button>
-        </li>
-        <li class="board" data-board="esp32c5-devkitc1">
-          <h3>Espressif ESP32-C5-DevKitC-1</h3>
-          <p class="specs">ESP32-C5, Wi-Fi 2.4 and 5 GHz, Bluetooth LE</p>
-          <p>Needs 8 MB of flash (N8R4 and N8R8 modules).</p>
-          <esp-web-install-button manifest="firmware/esp32c5-devkitc1/manifest.json">
-            <button slot="activate" class="install">Install<span class="sr"> on ESP32-C5-DevKitC-1</span></button>
-            <span slot="unsupported" class="missing">Needs Chrome or Edge on a computer.</span>
-            <span slot="not-allowed" class="missing">Open this page over HTTPS to install.</span>
-          </esp-web-install-button>
-        </li>
-        <li class="board" data-board="esp32c6-devkitc1">
-          <h3>Espressif ESP32-C6-DevKitC-1</h3>
-          <p class="specs">ESP32-C6, Wi-Fi 2.4 GHz only, Bluetooth LE</p>
-          <p class="untested">Not yet tested on hardware.</p>
-          <p>Needs 8 MB of flash.</p>
-          <esp-web-install-button manifest="firmware/esp32c6-devkitc1/manifest.json">
-            <button slot="activate" class="install">Install<span class="sr"> on ESP32-C6-DevKitC-1</span></button>
-            <span slot="unsupported" class="missing">Needs Chrome or Edge on a computer.</span>
-            <span slot="not-allowed" class="missing">Open this page over HTTPS to install.</span>
-          </esp-web-install-button>
-        </li>
-        <li class="board" data-board="esp32s3-devkitc1">
-          <h3>Espressif ESP32-S3-DevKitC-1</h3>
-          <p class="specs">ESP32-S3, Wi-Fi 2.4 GHz only, Bluetooth LE</p>
-          <p class="untested">Not yet tested on hardware.</p>
-          <p>Needs 8 MB of flash or more.</p>
-          <esp-web-install-button manifest="firmware/esp32s3-devkitc1/manifest.json">
-            <button slot="activate" class="install">Install<span class="sr"> on ESP32-S3-DevKitC-1</span></button>
-            <span slot="unsupported" class="missing">Needs Chrome or Edge on a computer.</span>
-            <span slot="not-allowed" class="missing">Open this page over HTTPS to install.</span>
-          </esp-web-install-button>
-        </li>
-        <li class="board" data-board="esp32c3-devkitm1">
-          <h3>Espressif ESP32-C3-DevKitM-1</h3>
-          <p class="specs">ESP32-C3, Wi-Fi 2.4 GHz only, Bluetooth LE</p>
-          <p class="untested">Not yet tested on hardware.</p>
-          <p>Needs 4 MB of flash or more.</p>
-          <esp-web-install-button manifest="firmware/esp32c3-devkitm1/manifest.json">
-            <button slot="activate" class="install">Install<span class="sr"> on ESP32-C3-DevKitM-1</span></button>
-            <span slot="unsupported" class="missing">Needs Chrome or Edge on a computer.</span>
-            <span slot="not-allowed" class="missing">Open this page over HTTPS to install.</span>
-          </esp-web-install-button>
-        </li>
-      </ul>
+      <section class="panel" id="panel-connect" aria-labelledby="connect-title">
+        <div class="art-wrap" id="connect-art"></div>
+        <h2 id="connect-title" tabindex="-1">Plug in your board</h2>
+        <p>Connect the board to this computer with a USB cable that carries data. Cables that came
+          with a charger often only carry power.</p>
+        <div class="actions">
+          <button type="button" class="btn primary big" id="connect">Connect board</button>
+        </div>
+        <p class="hint">Your browser then lists the boards it can see. Pick the one named like
+          <b>USB JTAG/serial debug unit</b>, <b>CP2102N USB to UART Bridge Controller</b>
+          or <b>USB Single Serial</b>, and press Connect.</p>
+        <p id="connect-status" class="status" aria-live="polite"></p>
+        <details class="inline-help">
+          <summary>The board is not in the list</summary>
+          <ul>
+            <li>Try another cable. A charge-only cable is the most common cause.</li>
+            <li>On a DevKit with two USB ports, try the other port.</li>
+            <li>On Windows, a board with a CP210x or CH34x chip may need its driver from Silicon
+              Labs or WCH.</li>
+            <li>On Linux, add yourself to the <code>dialout</code> group, then log in again.</li>
+          </ul>
+          <button type="button" class="btn text" id="connect-all">Show every serial port</button>
+        </details>
+      </section>
 
-      <details>
-        <summary>The board is not found, or the install fails to connect</summary>
-        <ol>
-          <li>Try a different USB cable or port. Charge-only cables are the most common cause.</li>
-          <li>Put the board in download mode: hold the <strong>BOOT</strong> button, press and
-            release <strong>RESET</strong> (labeled RST or EN on some boards), then release BOOT.
-            Press Install again. On the XIAO, hold BOOT while you plug in the cable instead.</li>
-          <li>After an install in download mode, press <strong>RESET</strong> once so the board
-            starts the new firmware.</li>
-          <li>On Windows, boards with a USB to UART chip may need its driver (Silicon Labs CP210x
-            or WCH CH34x).</li>
+      <section class="panel" id="panel-choose" aria-labelledby="choose-title" hidden>
+        <h2 id="choose-title" tabindex="-1">Which board is this?</h2>
+        <p id="choose-found" class="found"></p>
+        <form id="choose-form">
+          <fieldset class="options" id="choose-options">
+            <legend class="sr">Board</legend>
+          </fieldset>
+          <p class="erase-note" id="erase-note">Installing erases everything on this board,
+            including any earlier pairings with a phone.</p>
+          <div class="actions">
+            <button type="submit" class="btn primary big" id="install">Install NS Scout</button>
+            <button type="button" class="btn secondary" id="choose-back">Back</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel" id="panel-install" aria-labelledby="install-title" hidden>
+        <h2 id="install-title" tabindex="-1">Installing the Scout software</h2>
+        <p id="install-on" class="found"></p>
+        <div class="meter" id="meter" role="progressbar" aria-labelledby="install-title"
+          aria-valuemin="0" aria-valuemax="100"><div class="fill"></div></div>
+        <ol class="phases" id="phases">
+          <li data-phase="preparing">Download</li>
+          <li data-phase="erasing">Erase</li>
+          <li data-phase="writing">Write <span id="percent"></span></li>
+          <li data-phase="restarting">Restart</li>
         </ol>
+        <p class="hint">This takes about a minute. Keep this tab open and the board plugged in.</p>
+      </section>
+
+      <section class="panel" id="panel-error" aria-labelledby="error-title" hidden>
+        <div class="error-icon" aria-hidden="true">!</div>
+        <h2 id="error-title" tabindex="-1"></h2>
+        <p id="error-text"></p>
+        <ul id="error-tips" class="tips"></ul>
+        <div class="actions">
+          <button type="button" class="btn primary" id="retry">Try again</button>
+        </div>
+        <details class="log-box" id="log-box">
+          <summary>Technical details</summary>
+          <pre id="log"></pre>
+        </details>
+      </section>
+
+      <section class="panel" id="panel-done" aria-labelledby="done-title" hidden>
+        <div class="art-wrap" id="done-art"></div>
+        <h2 id="done-title" tabindex="-1">Your Scout is ready</h2>
+        <div class="name-card" id="name-card" hidden>
+          <p class="name-label">Its name</p>
+          <output id="done-name" class="board-name"></output>
+          <button type="button" class="btn text" id="copy-name">Copy</button>
+          <p class="name-hint">Write it on the board or a label, so you can tell your Scouts apart.</p>
+        </div>
+        <div class="name-missing" id="name-missing" hidden>
+          <p id="name-missing-text"></p>
+          <button type="button" class="btn secondary" id="reread">Read the name again</button>
+        </div>
+        <h3>Pair it with your iPhone</h3>
+        <ol class="pair-steps">
+          <li>Keep the Scout powered, from this computer or a USB power bank. When its light
+            <span class="led-dot" id="led-dot" aria-hidden="true"></span> blinks
+            <span id="led-colour">cyan</span> quickly, it is ready to pair.</li>
+          <li>Open Network Survey on your iPhone and tap <b>Scouts</b> on the Survey screen.</li>
+          <li>Find <b id="pair-name">your Scout</b> under Nearby and tap <b>Connect</b> next to
+            it, then tap <b>Pair</b> when iOS asks.</li>
+        </ol>
+        <p class="hint">From now on the app installs updates over Bluetooth, so this Scout will not
+          need this page again.</p>
+        <div class="actions">
+          <button type="button" class="btn secondary" id="again">Set up another Scout</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="below" id="boards" aria-labelledby="boards-title">
+      <h2 id="boards-title">Supported boards</h2>
+      <p>An NS Scout is one of these ESP32 boards running the Scout software. Only the ESP32-C5
+        also hears 5 GHz Wi-Fi, which many access points use.</p>
+      <ul class="board-list" id="board-list"></ul>
+    </section>
+
+    <section class="below" id="help" aria-labelledby="help-title">
+      <h2 id="help-title">Help</h2>
+      <details>
+        <summary>Connecting to the board fails</summary>
+        <ul>
+          <li>Close anything else using the board: a serial monitor, the Arduino IDE, or this page
+            in another tab.</li>
+          <li>Put the board in download mode, then press Connect board again. On a DevKit, hold
+            <b>BOOT</b>, press and release <b>RESET</b> (<b>RST</b> on the C3 board), then release
+            BOOT. On the XIAO, unplug it and hold <b>B</b> while you plug it back in.</li>
+          <li>Plug the board straight into the computer instead of through a hub.</li>
+        </ul>
+      </details>
+      <details>
+        <summary>The install stopped partway</summary>
+        <p>The board is not damaged. Plug it back in and run the install again. If it keeps
+          stopping at the same place, try another cable or USB port.</p>
+      </details>
+      <details>
+        <summary>The Scout does not start after the install</summary>
+        <p>Press <b>RESET</b> once (<b>RST</b> on the C3 board, <b>R</b> on the XIAO). A board that was put in download mode by
+          hand sometimes waits for this before it starts the new software.</p>
+      </details>
+      <details>
+        <summary>I can't use Chrome or Edge</summary>
+        <p>The installer needs Web Serial, which only Chrome and Edge on a computer have. You can
+          also flash the full image from the
+          <a href="https://github.com/christianrowlands/network-survey-esp32/releases">GitHub
+          releases</a> with <code>esptool</code>, as the release notes describe.</p>
       </details>
     </section>
 
-    <section aria-labelledby="step3-title">
-      <h2 id="step3-title"><span class="step" aria-hidden="true">3</span> Note the board's name</h2>
-      <p>Every board has a short name such as <code>NS-1A2B</code>, made from its Bluetooth
-        address. The app shows this name when you pair, so you can tell your boards apart. Close
-        the installer window first, then:</p>
+    <section class="below" id="find-name" aria-labelledby="find-title">
+      <h2 id="find-title">Find a Scout's name</h2>
+      <p>Every Scout has a short name such as <code>NS-1A2B</code>, made from its Bluetooth
+        address. To see the name of a Scout you set up earlier, plug it in and press the button.</p>
       <div class="name-row">
-        <button type="button" id="read-name" class="secondary">Show board name</button>
-        <output id="board-name" class="board-name" aria-live="polite"></output>
+        <button type="button" id="read-name" class="btn secondary">Show Scout name</button>
+        <output id="board-name" class="board-name small" aria-live="polite"></output>
       </div>
-      <p id="name-status" class="muted" aria-live="polite"></p>
-      <p class="muted">You can also open <strong>Logs &amp; Console</strong> in the installer and
-        look for a line that says <code>name NS-</code>.</p>
+      <p id="name-status" class="status" aria-live="polite"></p>
     </section>
 
-    <section aria-labelledby="step4-title">
-      <h2 id="step4-title"><span class="step" aria-hidden="true">4</span> Pair it with the app</h2>
-      <p>Open the Network Survey app on your iPhone, tap <strong>Boards</strong> at the top of the
-        Survey screen, and pick your board's name under <strong>Nearby</strong>. A freshly
-        installed board is ready to pair straight away. From now on, the app offers
-        firmware updates and installs them over Bluetooth, so you will not need this page again
-        for that board.</p>
+    <section class="below" id="about" aria-labelledby="about-title">
+      <h2 id="about-title">About the Scout software</h2>
+      <ul class="facts">
+        <li><b>It only listens.</b> The Scout hears Wi-Fi and Bluetooth and reports what it hears
+          to the app. It never sends Wi-Fi frames, never joins a network, and never sends active
+          scans or deauthentication frames.</li>
+        <li><b>Survey only where you are allowed to.</b> Rules on capturing wireless traffic differ
+          by country and by site. You are responsible for following them.</li>
+        <li><b>Open source.</b> The firmware is on
+          <a href="https://github.com/christianrowlands/network-survey-esp32">GitHub</a> under the
+          Apache License 2.0, with
+          <a href="https://github.com/christianrowlands/network-survey-esp32/releases">release
+          notes</a> for every version.</li>
+      </ul>
     </section>
   </main>
 
   <footer class="foot">
-    <p>Network Survey board firmware is open source under the Apache License 2.0. This page has
-      no analytics, cookies or trackers. The firmware files come from this site; the installer
-      script (ESP Web Tools) loads from unpkg.com.</p>
+    <p>This page has no analytics, cookies or trackers. The firmware comes from this site; the
+      install code (esptool-js) loads from unpkg.com with an integrity check.</p>
   </footer>
 </body>
 </html>

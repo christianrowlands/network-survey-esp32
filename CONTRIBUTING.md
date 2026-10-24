@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping with the Network Survey board firmware. Bug reports, board
+Thanks for helping with the NS Scout firmware. Bug reports, board
 ports, test results on hardware and fixes are all welcome.
 
 ## Before you start

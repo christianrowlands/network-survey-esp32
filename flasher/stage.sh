@@ -19,9 +19,9 @@ case "$OUT" in
   "$ROOT" | "$SRC" | "$DIST" | /) echo "refusing to replace $OUT" >&2; exit 1 ;;
 esac
 rm -rf "$OUT"
-mkdir -p "$OUT/img"
-cp "$SRC/index.html" "$SRC/style.css" "$SRC/app.js" "$OUT/"
-cp "$SRC"/img/* "$OUT/img/"
+mkdir -p "$OUT"
+cp "$SRC/index.html" "$SRC"/*.css "$OUT/"
+cp -R "$SRC/js" "$SRC/fonts" "$SRC/img" "$OUT/"
 # Serve the folder as is on GitHub Pages (no Jekyll processing).
 touch "$OUT/.nojekyll"
 

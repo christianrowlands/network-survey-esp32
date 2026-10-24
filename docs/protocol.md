@@ -1,8 +1,8 @@
-# Network Survey board protocol
+# NS Scout protocol
 
 Version 1.0
 
-This document describes how a Network Survey board talks to the Network Survey
+This document describes how an NS Scout (the board) talks to the Network Survey
 phone app over Bluetooth Low Energy. Anyone can build a compatible board: follow
 this document and [`proto/ns_board.proto`](../proto/ns_board.proto), which is the
 source of truth for every message. Where this document and the proto file

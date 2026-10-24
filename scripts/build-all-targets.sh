@@ -68,7 +68,7 @@ while IFS='|' read -r board target family name; do
   cp "$build/network_survey_board.bin" "$out/network-survey-board-$board-app.bin"
   cat > "$out/manifest.json" <<JSON
 {
-  "name": "Network Survey Board ($name)",
+  "name": "NS Scout ($name)",
   "version": "$VERSION",
   "new_install_prompt_erase": true,
   "new_install_improv_wait_time": 0,

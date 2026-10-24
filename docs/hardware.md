@@ -1,6 +1,6 @@
 # Hardware guide
 
-What you need to build a Network Survey board, how the supported boards are
+What you need to build an NS Scout, how the supported boards are
 wired, and how to add a GPS receiver and a battery.
 
 ## Status
@@ -38,7 +38,7 @@ misses less.
 
 ## Pin maps
 
-These are the defaults in the "Network Survey board" Kconfig menu
+These are the defaults in the "NS Scout" Kconfig menu
 (`firmware/components/board/Kconfig`). Each board's
 `firmware/boards/<board>.defaults` selects its entry.
 
@@ -171,7 +171,7 @@ the pin).
 Any ESP32-C5, C6, S3 or C3 board can run the firmware:
 
 1. Copy the closest `firmware/boards/<board>.defaults` to a new file.
-2. Set `CONFIG_NS_BOARD_CUSTOM=y` and the pins in the "Network Survey board"
+2. Set `CONFIG_NS_BOARD_CUSTOM=y` and the pins in the "NS Scout"
    menu: BOOT button, LED type and GPIO, battery sense and GPS.
 3. Build it as described in `firmware/README.md`.
 

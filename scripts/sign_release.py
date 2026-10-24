@@ -168,7 +168,7 @@ def sign(args):
 
     manifest = {
         "format": FORMAT,
-        "name": "Network Survey Board firmware",
+        "name": "NS Scout firmware",
         "version": version,
         "min_version": args.min_version or "0.0.0",
         "protocol_major": major,

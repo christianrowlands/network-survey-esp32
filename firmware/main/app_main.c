@@ -1,4 +1,4 @@
-// Network Survey board firmware entry point.
+// NS Scout firmware entry point.
 
 #include "ble_sniffer.h"
 #include "board.h"
@@ -176,7 +176,7 @@ static void init_nvs(void)
 void app_main(void)
 {
     const esp_app_desc_t *app = esp_app_get_description();
-    ESP_LOGI(TAG, "Network Survey board %s on %s (%s)", app->version, board_model_name(), board_chip_name());
+    ESP_LOGI(TAG, "NS Scout %s on %s (%s)", app->version, board_model_name(), board_chip_name());
 
     init_nvs();
     ESP_ERROR_CHECK(ui_io_init(on_button, NULL));

@@ -22,7 +22,7 @@ manifest URL with `.sig` appended).
 ```json
 {
   "format": 1,
-  "name": "Network Survey Board firmware",
+  "name": "NS Scout firmware",
   "version": "0.2.0",
   "min_version": "0.1.0",
   "protocol_major": 1,
