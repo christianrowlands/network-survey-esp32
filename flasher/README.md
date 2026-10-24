@@ -39,6 +39,7 @@ under "Technical details".
 | `fonts/` | The heading font: Mona Sans cut to Latin at width 112 and renamed Scout Display, as its licence (`fonts/OFL.txt`) asks of modified versions. |
 | `img/` | Network Survey icon and lockups. |
 | `stage.sh` | Assembles the page and the firmware into a folder ready to host. |
+| `stage-release.sh` | The same, with the images of a published release instead of a local build. |
 
 The page loads esptool-js from unpkg.com at an exact version, through an import
 map with an integrity hash, and only on browsers that can install. It has no
@@ -80,7 +81,10 @@ To review a step without a board, add `?demo=<step>`: `connect`, `choose`,
 
 `.github/workflows/release.yml` stages this folder with the images of each full
 release and deploys it to GitHub Pages, so the page always offers the latest
-firmware. Pages serves it at the custom domain `install.networksurvey.app`, over
+firmware. To publish a change to the page between releases, run
+`.github/workflows/installer.yml` by hand on `main` (Actions > installer > Run
+workflow): it stages the page with the latest full release's images through
+`stage-release.sh` and deploys it. Pages serves it at the custom domain `install.networksurvey.app`, over
 HTTPS, which Web Serial requires. The repository and DNS settings it needs are
 in `docs/releasing.md`. The same folder works on any other static HTTPS host.
 

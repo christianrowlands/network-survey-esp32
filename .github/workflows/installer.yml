@@ -1,0 +1,55 @@
+name: installer
+
+# Deploys the web installer (flasher/) to GitHub Pages around the full flash
+# images of a release that is already published, so a change to the page goes
+# live without a new firmware release. Run it by hand from the Actions tab, on
+# main. Full releases still deploy the page on their own (release.yml).
+# Setup: docs/releasing.md.
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Release tag to offer, such as v0.1.0 (empty: the latest full release)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check the text
+        run: scripts/check-text.sh
+
+      - name: Stage the page with the release images
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE: ${{ inputs.release }}
+        run: flasher/stage-release.sh "$RELEASE" dist/flasher
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist/flasher
+          include-hidden-files: true
+
+  pages:
+    needs: stage
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v5

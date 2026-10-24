@@ -7,7 +7,9 @@
 #
 # Usage: scripts/build-all-targets.sh [board ...]   (default: all boards)
 #        scripts/build-all-targets.sh --list        (print the board ids)
-# Needs an activated ESP-IDF v6.0.1 environment (IDF_PATH set), except --list.
+#        scripts/build-all-targets.sh --table       (print the board table below)
+# Needs an activated ESP-IDF v6.0.1 environment (IDF_PATH set), except --list
+# and --table.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -25,6 +27,10 @@ esp32c3-devkitm1|esp32c3|ESP32-C3|ESP32-C3-DevKitM-1
 
 if [ "${1:-}" = "--list" ]; then
   echo "$BOARDS" | cut -d'|' -f1 | sed '/^$/d'
+  exit 0
+fi
+if [ "${1:-}" = "--table" ]; then
+  echo "$BOARDS" | sed '/^$/d'
   exit 0
 fi
 
@@ -66,20 +72,7 @@ while IFS='|' read -r board target family name; do
   mkdir -p "$out"
   (cd "$build" && "$PY" -m esptool --chip "$target" merge-bin -o "$out/$image" @flash_args)
   cp "$build/network_survey_board.bin" "$out/network-survey-board-$board-app.bin"
-  cat > "$out/manifest.json" <<JSON
-{
-  "name": "NS Scout ($name)",
-  "version": "$VERSION",
-  "new_install_prompt_erase": true,
-  "new_install_improv_wait_time": 0,
-  "builds": [
-    {
-      "chipFamily": "$family",
-      "parts": [{ "path": "$image", "offset": 0 }]
-    }
-  ]
-}
-JSON
+  "$ROOT/scripts/write-installer-manifest.sh" "$out" "$board" "$family" "$name" "$VERSION"
   SUMMARY="$SUMMARY$(printf '%-18s %-8s %9d bytes merged' "$board" "$target" "$(wc -c < "$out/$image")")"$'\n'
   BUILT=$((BUILT + 1))
 done <<< "$BOARDS"

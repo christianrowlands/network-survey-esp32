@@ -1,6 +1,6 @@
 # Releasing firmware
 
-Two GitHub Actions workflows live in `.github/workflows/`:
+Three GitHub Actions workflows live in `.github/workflows/`:
 
 - `firmware.yml` runs on every branch push and pull request: the passive-only
   check, the text check, the host tests, a check that the generated nanopb
@@ -10,6 +10,9 @@ Two GitHub Actions workflows live in `.github/workflows/`:
 - `release.yml` runs when a version tag is pushed. It runs `firmware.yml`,
   signs the OTA images, publishes a GitHub Release and deploys the web
   installer to GitHub Pages.
+- `installer.yml` runs only by hand. It deploys the web installer from the
+  branch it runs on, with the images of a release that is already published,
+  so a change to the page goes live without a firmware release.
 
 ## One-time setup
 
@@ -40,8 +43,9 @@ Two GitHub Actions workflows live in `.github/workflows/`:
 4. **Pages.** In Settings > Pages, set the source to "GitHub Actions" and the
    custom domain to `install.networksurvey.app`, then tick Enforce HTTPS once
    the certificate is issued. In Settings > Environments > `github-pages`,
-   allow deployments from tags matching `v*` (by default only the default
-   branch may deploy). In Cloudflare DNS for `networksurvey.app`, the record
+   allow deployments from tags matching `v*` for `release.yml`, and keep
+   `main` allowed for `installer.yml` (by default only the default branch may
+   deploy). In Cloudflare DNS for `networksurvey.app`, the record
    is `CNAME install -> christianrowlands.github.io`, DNS only (grey cloud):
    GitHub cannot issue the certificate through the Cloudflare proxy.
 5. **Optional variable.** `NS_FIRMWARE_MIN_VERSION` (Settings > Secrets and
@@ -86,6 +90,13 @@ For a full release the workflow runs `flasher/stage.sh` on the freshly built
 images and deploys the result to GitHub Pages
 (`https://install.networksurvey.app/`), replacing the previous
 version. See `flasher/README.md` for the page itself.
+
+To publish a change to the page without a firmware release, merge it to
+`main`, then in Actions > installer > Run workflow, run it on `main`. It
+stages the page with the full flash images of the latest full release (or the
+tag you enter) and deploys it. The firmware the page installs and the
+firmware the app offers stay the same. `flasher/stage-release.sh` does the
+staging and works locally too, with the `gh` CLI signed in.
 
 ## Adding a board
 
