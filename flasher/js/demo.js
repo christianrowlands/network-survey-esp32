@@ -46,6 +46,7 @@ export function show(name, published) {
     "done-xiao": () => ui.showDone(board("xiao-esp32c5"), { name: "NS-7F3C" }),
     reading: () => ui.showDone(board("esp32c5-devkitc1"), { reading: true }),
     noname: () => ui.showDone(board("esp32c5-devkitc1"), {}),
+    stuck: () => ui.showDone(board("esp32c5-devkitc1"), { downloadMode: true }),
   };
   (states[name] ?? states.connect)();
 }

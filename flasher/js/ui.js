@@ -196,7 +196,8 @@ export function showError({ title, text, tips = [], log = [] }) {
 }
 
 // name: the Scout's NS-XXXX name, or null. reading: still listening for it.
-export function showDone(board, { name = null, reading = false, focus = true } = {}) {
+// downloadMode: the board started in download mode instead of the firmware.
+export function showDone(board, { name = null, reading = false, downloadMode = false, focus = true } = {}) {
   const colour = ledColor(board);
   $("done-art").innerHTML = boardArt(board.art, { led: true, name: `${board.name} with its status light on` });
   $("done-art").style.setProperty("--led", `var(--led-${colour})`);
@@ -209,7 +210,9 @@ export function showDone(board, { name = null, reading = false, focus = true } =
   $("reread").hidden = reading;
   $("name-missing-text").textContent = reading
     ? "Reading the Scout's name…"
-    : `Installed. Its name did not show up: press ${resetButton(board)} on the board, then read it again.`;
+    : downloadMode
+      ? "Installed, but the board restarted in download mode instead of the Scout software. Unplug it, plug it back in, then read the name again."
+      : `Installed. Its name did not show up: press ${resetButton(board)} on the board, then read it again.`;
   if (focus) showPanel("done");
   announce(name ? `Your Scout is named ${name}.` : $("name-missing-text").textContent);
 }

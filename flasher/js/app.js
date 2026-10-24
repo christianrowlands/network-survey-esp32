@@ -188,18 +188,26 @@ async function readName(port) {
   const board = state.board;
   const done = (async () => {
     let name = null;
+    let downloadMode = false;
     try {
       await sleep(300);
-      if (!abort.signal.aborted) name = await readBoardName(port, null, abort.signal);
+      if (!abort.signal.aborted) ({ name, downloadMode } = await readBoardName(port, null, abort.signal));
     } catch (error) {
       console.error(error);
     }
     // A read that was cancelled belongs to a Scout the user has moved on from.
-    if (!abort.signal.aborted) ui.showDone(board, { name, focus: false });
+    if (!abort.signal.aborted) ui.showDone(board, { name, downloadMode, focus: false });
   })();
   state.read = { abort, done };
   await done;
   if (state.read?.done === done) state.read = null;
+}
+
+// The one allowed port with the same USB IDs as port, if there is exactly one.
+function sameBoard(ports, port) {
+  const { usbVendorId, usbProductId } = port?.getInfo() ?? {};
+  const matches = ports.filter((p) => p.getInfo().usbVendorId === usbVendorId && p.getInfo().usbProductId === usbProductId);
+  return matches.length === 1 ? matches[0] : null;
 }
 
 async function onReread() {
@@ -209,7 +217,8 @@ async function onReread() {
   try {
     // A board that restarted may come back as a new port.
     const ports = await navigator.serial.getPorts();
-    if (!ports.includes(port)) port = await navigator.serial.requestPort({ filters: PORT_FILTERS });
+    // After a replug the board is a new port object, already allowed for this page.
+    if (!ports.includes(port)) port = sameBoard(ports, port) ?? await navigator.serial.requestPort({ filters: PORT_FILTERS });
   } catch {
     ui.showDone(state.board, { focus: false });
     return;
@@ -248,11 +257,13 @@ function setUpNameTool() {
     }
     await cancelRead();
     try {
-      const name = await readBoardName(port, () => ui.setStatus("name-status", LISTENING));
+      const { name, downloadMode } = await readBoardName(port, () => ui.setStatus("name-status", LISTENING));
       output.textContent = name ?? "";
       ui.setStatus("name-status", name
         ? "This is the Scout's name. Write it on the board or its case."
-        : "No name seen. Press the reset button on the board, then try again. If it still does not show, install the Scout software again.");
+        : downloadMode
+          ? "The board started in download mode instead of the Scout software. Unplug it, plug it back in, then try again."
+          : "No name seen. Press the reset button on the board, then try again. If it still does not show, install the Scout software again.");
     } catch (error) {
       ui.setStatus("name-status", error.name === "InvalidStateError"
         ? "The port is busy. Finish or go back from the setup above, close any other serial monitor, and try again."

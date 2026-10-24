@@ -74,7 +74,7 @@ HTTP does not.
 
 To review a step without a board, add `?demo=<step>`: `connect`, `choose`,
 `choose-one`, `small`, `unsupported`, `erasing`, `install`, `error-connect`,
-`error-write`, `error-busy`, `done`, `done-xiao`, `reading`, `noname`,
+`error-write`, `error-busy`, `done`, `done-xiao`, `reading`, `noname`, `stuck`,
 `gate-mobile`, `gate-browser` or `gate-insecure`.
 
 ## Publish on GitHub Pages
