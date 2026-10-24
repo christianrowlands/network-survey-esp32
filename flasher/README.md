@@ -90,8 +90,9 @@ in `docs/releasing.md`. The same folder works on any other static HTTPS host.
 
 ## Updating esptool-js
 
-`js/flash.js` follows the install sequence of ESP Web Tools 10.4.0, which uses
-esptool-js 0.6. To move to a new version, pick a release that has been out for a
+`js/flash.js` follows the install sequence of ESP Web Tools 10.4.0. The page
+uses esptool-js 0.7.0: 0.6.1 cannot identify ESP32-C5 chips of newer
+revisions ("Unexpected CHIP magic value 0x30e1706f"). To move to a new version, pick a release that has been out for a
 couple of weeks and supports every chip in the board list, change the version in
 both URLs of the import map in `index.html`, and replace the `integrity` value
 with the hash of the new file:
