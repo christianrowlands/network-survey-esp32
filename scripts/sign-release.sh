@@ -18,7 +18,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PY=python3
-if [ -x "${IDF_PYTHON_ENV_PATH:-}/bin/python" ]; then
+if [ -n "${IDF_PYTHON_ENV_PATH:-}" ] && [ -x "$IDF_PYTHON_ENV_PATH/bin/python" ]; then
   PY="$IDF_PYTHON_ENV_PATH/bin/python"
 fi
 "$PY" -c "import cryptography" 2>/dev/null || {

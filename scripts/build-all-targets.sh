@@ -32,7 +32,7 @@ fi
 # Some IDF activation scripts define idf.py as a shell function, which a
 # script does not inherit, so call it through the IDF Python directly.
 PY=python
-if [ -x "${IDF_PYTHON_ENV_PATH:-}/bin/python" ]; then
+if [ -n "${IDF_PYTHON_ENV_PATH:-}" ] && [ -x "$IDF_PYTHON_ENV_PATH/bin/python" ]; then
   PY="$IDF_PYTHON_ENV_PATH/bin/python"
 fi
 idf() { "$PY" "$IDF_PATH/tools/idf.py" "$@"; }
